@@ -41,3 +41,14 @@ Uber.Fx package `armfx`
 | Method                | Description                                      |
 |-----------------------|--------------------------------------------------|
 | `armfx.ProvideStruct` | Constructs provider `fx.Option` for given struct |
+
+
+Hashing tools package `armhash`
+-------------------------------
+
+| Method           | Description                                                                                             |
+|------------------|---------------------------------------------------------------------------------------------------------|
+| `armhash.Bytes`  | Calculates hash/checksum of provided byte slice using given hasher                                      |
+| `armhash.CRC32`  | Produces IEEE CRC32 checksum from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API | 
+| `armhash.SHA256` | Produces SHA256 hash from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API         |
+| `armhash.String` | Calculates hash/checksum of provided `string` using given hasher                                        |
