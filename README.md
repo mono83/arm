@@ -63,3 +63,9 @@ SQL tools package `armsql`
 | Method       | Description                                                                               |
 |--------------|-------------------------------------------------------------------------------------------|
 | `armsql.One` | Returns exactly one element from slice or error if slice has different amount of elements |
+
+String tools package `armstr`
+
+| Method       | Description                                                                               |
+|--------------|-------------------------------------------------------------------------------------------|
+| `armstr.Len` | Returns count of characters in UTF8 string. Better than `len(s)` but far from being ideal |
