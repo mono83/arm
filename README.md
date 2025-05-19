@@ -46,9 +46,12 @@ Uber.Fx package `armfx`
 Hashing tools package `armhash`
 -------------------------------
 
-| Method           | Description                                                                                             |
-|------------------|---------------------------------------------------------------------------------------------------------|
-| `armhash.Bytes`  | Calculates hash/checksum of provided byte slice using given hasher                                      |
-| `armhash.CRC32`  | Produces IEEE CRC32 checksum from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API | 
-| `armhash.SHA256` | Produces SHA256 hash from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API         |
-| `armhash.String` | Calculates hash/checksum of provided `string` using given hasher                                        |
+| Method                | Description                                                                                             |
+|-----------------------|---------------------------------------------------------------------------------------------------------|
+| `armhash.Bytes`       | Calculates hash/checksum of provided byte slice using given hasher                                      |
+| `armhash.CRC32`       | Produces IEEE CRC32 checksum from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API | 
+| `armhash.SHA256`      | Produces SHA256 hash from given reader. Use `armhash.Bytes` or `armhash.String` for simpler API         |
+| `armhash.String`      | Calculates hash/checksum of provided `string` using given hasher                                        |
+| `armbcrypt.NewHasher` | Creates `armhash.Hasher` using BCrypt with given cost                                                   |
+| `armbcrypt.Verify`    | Compares a bcrypt hashed password with its possible plaintext equivalent.                               |
+| `armbcrypt.IsValid`   | Compares a bcrypt hashed password with its possible plaintext equivalent.                               |
