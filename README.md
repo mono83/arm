@@ -55,3 +55,11 @@ Hashing tools package `armhash`
 | `armbcrypt.NewHasher` | Creates `armhash.Hasher` using BCrypt with given cost                                                   |
 | `armbcrypt.Verify`    | Compares a bcrypt hashed password with its possible plaintext equivalent.                               |
 | `armbcrypt.IsValid`   | Compares a bcrypt hashed password with its possible plaintext equivalent.                               |
+
+
+SQL tools package `armsql`
+--------------------------
+
+| Method       | Description                                                                               |
+|--------------|-------------------------------------------------------------------------------------------|
+| `armsql.One` | Returns exactly one element from slice or error if slice has different amount of elements |
