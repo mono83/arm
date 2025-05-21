@@ -33,6 +33,7 @@ Core package
 | `arm.Must` | Takes value and error, panic on error otherwise returns value |
 | `arm.Or`   | Return first non-default value from given ones                |
 | `arm.Ref`  | Constructs reference to given value                           |
+| `arm.Try`  | Runs func in secure way, catching all panics                  |
 
 
 Uber.Fx package `armfx`
