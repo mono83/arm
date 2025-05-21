@@ -14,21 +14,23 @@ func TestTry_Normal(t *testing.T) {
 }
 
 func TestTry_Error(t *testing.T) {
-	err := errors.New("some error")
-	if e := Try(func() error { return err }); e != nil {
-		assert.Equal(t, err, e)
+	given := errors.New("some error")
+	if err := Try(func() error { return given }); err != nil {
+		assert.Equal(t, given, err)
+		assert.False(t, errors.As(err, new(stacktrace)))
 	}
 }
 
 func TestTry_Panic(t *testing.T) {
 	if err := Try(func() error { panic("some panic") }); assert.Error(t, err) {
 		assert.False(t, errors.As(err, new(runtime.Error)))
-		assert.Equal(t, err, errors.New("some panic"))
+		assert.True(t, errors.As(err, new(stacktrace)))
 	}
 }
 
 func TestTry_Nil(t *testing.T) {
 	if err := Try(nil); assert.Error(t, err) {
 		assert.True(t, errors.As(err, new(runtime.Error)))
+		assert.True(t, errors.As(err, new(stacktrace)))
 	}
 }
