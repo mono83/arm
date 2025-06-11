@@ -1,6 +1,10 @@
 ARM
 ===
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mono83/arm)
+![GitHub Release](https://img.shields.io/github/v/release/mono83/arm)
+
+
 Arm is simple, small and zero-dependency collection of handy tools.
 
 
