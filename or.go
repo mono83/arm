@@ -11,3 +11,12 @@ func Or[T comparable](candidates ...T) (out T) {
 	}
 	return
 }
+
+// OrUnref returns value of first argument if it's not nil
+// otherwise returns second argument.
+func OrUnref[T any](v *T, def T) T {
+	if v == nil {
+		return def
+	}
+	return *v
+}
