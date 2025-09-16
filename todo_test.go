@@ -15,6 +15,10 @@ func TestTodoe(t *testing.T) {
 		assert.Nil(t, x)
 		assert.Equal(t, `accessing not implemented value of type "*int"`, err.Error())
 	}
+	if x, err := Todoe[TestInterface](); assert.Error(t, err) {
+		assert.Nil(t, x)
+		assert.Equal(t, `accessing not implemented value of type "arm.TestInterface"`, err.Error())
+	}
 }
 
 func TestTodoPanic(t *testing.T) {
@@ -22,3 +26,5 @@ func TestTodoPanic(t *testing.T) {
 		Todo[int]()
 	})
 }
+
+type TestInterface interface{}
