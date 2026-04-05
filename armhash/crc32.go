@@ -10,10 +10,10 @@ import (
 // Used by ethernet (IEEE 802.3), v.42, fddi, gzip, zip, png, ...
 // Produces same result as MySQL and PHP.
 func CRC32(r io.Reader) (uint32, error) {
-	bts, err := io.ReadAll(r)
-	if err != nil {
+	h := crc32.NewIEEE()
+	if _, err := io.Copy(h, r); err != nil {
 		return 0, err
 	}
 
-	return crc32.ChecksumIEEE(bts), nil
+	return h.Sum32(), nil
 }
