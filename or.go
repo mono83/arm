@@ -20,3 +20,12 @@ func OrUnref[T any](v *T, def T) T {
 	}
 	return *v
 }
+
+// OrProvide returns t if it is not the zero value for T,
+// otherwise it calls provide and returns its result.
+func OrProvide[T comparable](t T, provide func() T) (out T) {
+	if t != out {
+		return t
+	}
+	return provide()
+}

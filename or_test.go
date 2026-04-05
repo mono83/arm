@@ -22,3 +22,17 @@ func TestOrUnref(t *testing.T) {
 	require.Equal(t, "foo", OrUnref[string](&s, "bar"))
 	require.Equal(t, "bar", OrUnref[string](nil, "bar"))
 }
+
+func TestOrProvide(t *testing.T) {
+	// Non-zero value: provider must not be called
+	called := false
+	require.Equal(t, "foo", OrProvide("foo", func() string {
+		called = true
+		return "bar"
+	}))
+	require.False(t, called, "provider should not be called when t is non-zero")
+
+	// Zero value: provider must be called
+	require.Equal(t, "bar", OrProvide("", func() string { return "bar" }))
+	require.Equal(t, 42, OrProvide(0, func() int { return 42 }))
+}
