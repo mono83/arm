@@ -35,6 +35,6 @@ func TestOne_MoreThanOne(t *testing.T) {
 
 func TestOne_Normal(t *testing.T) {
 	if x, err := One[string]([]string{"bar"}, nil); assert.NoError(t, err) {
-		assert.NotEqual(t, "bar", x)
+		assert.Equal(t, "bar", *x)
 	}
 }
