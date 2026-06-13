@@ -98,6 +98,86 @@ func newHandler() http.Handler {
 }
 ```
 
+### Nil checks
+
+| Function | Signature | Description |
+|---|---|---|
+| `IsNil` | `IsNil(a any) bool` | Reports whether a value is nil, including a typed nil wrapped in an interface |
+
+```go
+var p *int
+arm.IsNil(p)   // true (a plain p == nil through an interface would be false)
+arm.IsNil(nil) // true
+arm.IsNil(0)   // false
+```
+
+---
+
+## Value converters — `anies`
+
+```go
+import "github.com/mono83/arm/anies"
+```
+
+Lenient and strict converters from `any` to common scalar types. Lenient variants coerce across kinds; strict variants accept only the target kind. Pointers are dereferenced in both. A nil input (including a typed nil) returns `ErrNilAny`, an unsupported type returns `ErrUnsupported`, and an out-of-range numeric returns `ErrOverflow`.
+
+| Function | Description |
+|---|---|
+| `ToBool(a any) (bool, error)` | Lenient: bool, numbers (non-zero), and "true"/"yes"/"on"/"1" strings |
+| `ToBoolStrict(a any) (bool, error)` | Only bool (and `*bool`) |
+| `ToInt(a any) (int, error)` | Lenient: integers, floats (truncated), bool, base-10 strings |
+| `ToIntStrict(a any) (int, error)` | Only integer kinds |
+| `ToString(a any) (string, error)` | Lenient: strings, `[]byte`, numbers, bool, `error` / `fmt.Stringer` |
+
+```go
+b, _ := anies.ToBool("yes")  // true
+n, _ := anies.ToInt("42")    // 42
+s, _ := anies.ToString(3.14) // "3.14"
+```
+
+---
+
+## Owner-tagged errors — `errors`
+
+```go
+import armerrors "github.com/mono83/arm/errors"
+```
+
+Errors that carry the name of the component that produced them, with an optional wrapped cause. The cause stays unwrappable via `errors.Is` / `errors.As`; a nil cause is replaced with `ErrNoCause`.
+
+| Function | Description |
+|---|---|
+| `NewOwned(owner, message string) error` | Static message |
+| `NewOwnedf(owner, pattern string, args ...any) error` | Printf-style message |
+| `NewOwnedCaused(owner, message string, cause error) error` | Static message wrapping a cause |
+| `NewOwnedCausedf(owner, pattern string, cause error, args ...any) error` | Printf-style message wrapping a cause |
+
+```go
+err := armerrors.NewOwnedCausedf("db", "loading user %d", cause, id)
+// "db: loading user 42: <cause>"
+errors.Is(err, cause) // true
+```
+
+---
+
+## Validation — `validate`
+
+```go
+import "github.com/mono83/arm/validate"
+```
+
+| Entity | Description |
+|---|---|
+| `Validable` | Interface for types that validate themselves (`Validate() error`) |
+| `All(vv ...Validable) error` | Validates every value and joins all failures (never fail-fast) |
+| `ReflectiveValidator` | Validates arbitrary values via reflection, recursing into pointers, slices, arrays, maps and structs; cycle-safe |
+
+```go
+err := validate.All(user, account) // errors.Join of every failure
+
+err = validate.ReflectiveValidator{AllowNil: true}.Validate(payload)
+```
+
 ---
 
 ## Uber Fx integration — `armfx`
