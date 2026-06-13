@@ -5,7 +5,9 @@ import (
 	"reflect"
 )
 
-// ProvideStruct constructs provider for given struct.
+// ProvideStruct constructs provider for given struct, injecting each field
+// from the fx container in declaration order. x must be a struct or pointer
+// to struct.
 func ProvideStruct(x any, anno ...fx.Annotation) fx.Option {
 	t := reflect.TypeOf(x)
 	if t.Kind() == reflect.Ptr {
