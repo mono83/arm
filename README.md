@@ -119,7 +119,7 @@ arm.IsNil(0)   // false
 import "github.com/mono83/arm/anies"
 ```
 
-Lenient and strict converters from `any` to common scalar types. Lenient variants coerce across kinds; strict variants accept only the target kind. Pointers are dereferenced in both. A nil input (including a typed nil) returns `ErrNilAny`, an unsupported type returns `ErrUnsupported`, and an out-of-range numeric returns `ErrOverflow`.
+Lenient and strict converters from `any` to common scalar types. Lenient variants coerce across kinds; strict variants accept only the target kind. Pointers are dereferenced and named scalar types (e.g. `type UserID int`) are unwrapped to their base in both. A nil input (including a typed nil) returns `ErrNilAny`, an unsupported type returns `ErrUnsupported`, and an out-of-range numeric returns `ErrOverflow`.
 
 | Function | Description |
 |---|---|
@@ -133,6 +133,9 @@ Lenient and strict converters from `any` to common scalar types. Lenient variant
 b, _ := anies.ToBool("yes")  // true
 n, _ := anies.ToInt("42")    // 42
 s, _ := anies.ToString(3.14) // "3.14"
+
+type UserID int
+id, _ := anies.ToInt(UserID(7)) // 7 — named types unwrap to their base
 ```
 
 ---

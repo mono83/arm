@@ -16,6 +16,7 @@ import (
 //   - Strings are trimmed and matched case-insensitively against the truthy
 //     tokens "TRUE", "YES", "ON" and "1"; any other string yields false.
 //   - Pointers are dereferenced and their target converted recursively.
+//   - Named scalar types (e.g. `type Flag bool`) are converted by their base.
 //
 // A nil input (including a typed nil) returns ErrNilAny. Any other type
 // returns ErrUnsupported.
@@ -55,8 +56,8 @@ func ToBool(a any) (bool, error) {
 
 // ToBoolStrict converts a value into a bool accepting only boolean inputs.
 //
-// Only bool (and pointers to bool, dereferenced) are accepted. A nil input
-// (including a typed nil) returns ErrNilAny; every other type returns
+// Only bool (and pointers to or named types over bool) are accepted. A nil
+// input (including a typed nil) returns ErrNilAny; every other type returns
 // ErrUnsupported.
 func ToBoolStrict(a any) (bool, error) {
 	switch x := a.(type) {
@@ -70,15 +71,21 @@ func ToBoolStrict(a any) (bool, error) {
 }
 
 // derefBool handles the cold path of the bool converters: typed nils yield
-// ErrNilAny, pointers are dereferenced and re-run through conv, and everything
-// else is unsupported. Keeping this out of the type switch lets concrete
+// ErrNilAny, pointers and named scalars are unwrapped and re-run through conv,
+// and everything else is unsupported. Recursing through conv keeps each
+// converter's own semantics: a named integer resolves under ToBool but is
+// rejected by ToBoolStrict. Keeping this out of the type switch lets concrete
 // inputs resolve without touching reflection.
 func derefBool(a any, conv func(any) (bool, error)) (bool, error) {
 	if arm.IsNil(a) {
 		return false, ErrNilAny
 	}
-	if rv := reflect.ValueOf(a); rv.Kind() == reflect.Ptr {
+	rv := reflect.ValueOf(a)
+	if rv.Kind() == reflect.Ptr {
 		return conv(rv.Elem().Interface())
+	}
+	if base, ok := basic(rv); ok {
+		return conv(base)
 	}
 	return false, fmt.Errorf("%T %w", a, ErrUnsupported)
 }

@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type myBool bool
+
 func TestToBool(t *testing.T) {
 	t.Run("bool", func(t *testing.T) {
 		assertBool(t, ToBool, true, true)
@@ -65,9 +67,20 @@ func TestToBool(t *testing.T) {
 		assertErr(t, ToBool, ip, ErrNilAny)
 	})
 
+	t.Run("named types", func(t *testing.T) {
+		assertBool(t, ToBool, myBool(true), true)
+		assertBool(t, ToBool, myBool(false), false)
+		assertBool(t, ToBool, myInt(0), false)
+		assertBool(t, ToBool, myInt(3), true)
+		assertBool(t, ToBool, myUint(0), false)
+		assertBool(t, ToBool, myString("yes"), true)
+		assertBool(t, ToBool, arm.Ref(myBool(true)), true)
+	})
+
 	t.Run("unsupported", func(t *testing.T) {
 		assertErr(t, ToBool, 1.5, ErrUnsupported)
 		assertErr(t, ToBool, struct{}{}, ErrUnsupported)
+		assertErr(t, ToBool, myFloat(1), ErrUnsupported)
 	})
 }
 
@@ -82,6 +95,13 @@ func TestToBoolStrict(t *testing.T) {
 		assertErr(t, ToBoolStrict, nil, ErrNilAny)
 		var bp *bool
 		assertErr(t, ToBoolStrict, bp, ErrNilAny)
+	})
+
+	t.Run("named types", func(t *testing.T) {
+		assertBool(t, ToBoolStrict, myBool(true), true)
+		assertBool(t, ToBoolStrict, arm.Ref(myBool(false)), false)
+		assertErr(t, ToBoolStrict, myInt(1), ErrUnsupported)
+		assertErr(t, ToBoolStrict, myString("true"), ErrUnsupported)
 	})
 
 	t.Run("unsupported", func(t *testing.T) {

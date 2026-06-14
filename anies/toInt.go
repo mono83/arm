@@ -20,6 +20,7 @@ import (
 //   - Strings are trimmed and parsed as a base-10 integer; an unparsable
 //     string returns ErrUnsupported.
 //   - Pointers are dereferenced and their target converted recursively.
+//   - Named scalar types (e.g. `type Age int`) are converted by their base.
 //
 // A value that does not fit into an int (a large unsigned integer, an
 // out-of-range float or numeric string, or - on 32-bit platforms - a large
@@ -48,13 +49,18 @@ func ToInt(a any) (int, error) {
 	case nil:
 		return 0, ErrNilAny
 	default:
-		// Pointers recurse leniently (so e.g. *bool is supported); every
-		// remaining type - all integers included - is handled by ToIntStrict.
+		// Pointers and named scalars (e.g. `type Age int`) recurse leniently;
+		// every remaining type - all integers included - is handled by
+		// ToIntStrict.
 		if arm.IsNil(a) {
 			return 0, ErrNilAny
 		}
-		if rv := reflect.ValueOf(a); rv.Kind() == reflect.Ptr {
+		rv := reflect.ValueOf(a)
+		if rv.Kind() == reflect.Ptr {
 			return ToInt(rv.Elem().Interface())
+		}
+		if base, ok := basic(rv); ok {
+			return ToInt(base)
 		}
 		return ToIntStrict(a)
 	}
@@ -62,10 +68,10 @@ func ToInt(a any) (int, error) {
 
 // ToIntStrict converts a value into an int accepting only integer inputs.
 //
-// Only signed and unsigned integer types (and pointers to them) are accepted;
-// floats, bools and strings are rejected. A value that does not fit into an
-// int returns ErrOverflow. A nil input (including a typed nil) returns
-// ErrNilAny; every other type returns ErrUnsupported.
+// Only signed and unsigned integer types (and pointers to or named types over
+// them) are accepted; floats, bools and strings are rejected. A value that
+// does not fit into an int returns ErrOverflow. A nil input (including a typed
+// nil) returns ErrNilAny; every other type returns ErrUnsupported.
 func ToIntStrict(a any) (int, error) {
 	switch x := a.(type) {
 	case int:
@@ -94,8 +100,14 @@ func ToIntStrict(a any) (int, error) {
 		if arm.IsNil(a) {
 			return 0, ErrNilAny
 		}
-		if rv := reflect.ValueOf(a); rv.Kind() == reflect.Ptr {
+		rv := reflect.ValueOf(a)
+		if rv.Kind() == reflect.Ptr {
 			return ToIntStrict(rv.Elem().Interface())
+		}
+		// A named integer type (e.g. `type Age int`) unwraps to its base and
+		// re-enters here; any other base recurses to ErrUnsupported.
+		if base, ok := basic(rv); ok {
+			return ToIntStrict(base)
 		}
 		return 0, fmt.Errorf("%T %w", a, ErrUnsupported)
 	}

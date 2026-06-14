@@ -9,6 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Named scalar types shared across the anies tests to exercise base unwrapping.
+type (
+	myInt   int
+	myUint  uint16
+	myFloat float64
+)
+
 func assertErrInt(t *testing.T, fn func(any) (int, error), in any, want error) {
 	t.Helper()
 	_, err := fn(in)
@@ -63,6 +70,15 @@ func TestToInt(t *testing.T) {
 		assertErrInt(t, ToInt, ip, ErrNilAny)
 	})
 
+	t.Run("named types", func(t *testing.T) {
+		assertInt(t, ToInt, myInt(42), 42)
+		assertInt(t, ToInt, myUint(7), 7)
+		assertInt(t, ToInt, myFloat(3.9), 3)
+		assertInt(t, ToInt, myBool(true), 1)
+		assertInt(t, ToInt, myString("15"), 15)
+		assertInt(t, ToInt, arm.Ref(myInt(-3)), -3)
+	})
+
 	t.Run("unsupported", func(t *testing.T) {
 		assertErrInt(t, ToInt, struct{}{}, ErrUnsupported)
 	})
@@ -88,6 +104,15 @@ func TestToIntStrict(t *testing.T) {
 		assertErrInt(t, ToIntStrict, nil, ErrNilAny)
 		var ip *int
 		assertErrInt(t, ToIntStrict, ip, ErrNilAny)
+	})
+
+	t.Run("named types", func(t *testing.T) {
+		assertInt(t, ToIntStrict, myInt(5), 5)
+		assertInt(t, ToIntStrict, myUint(9), 9)
+		assertInt(t, ToIntStrict, arm.Ref(myInt(7)), 7)
+		assertErrInt(t, ToIntStrict, myFloat(1.5), ErrUnsupported)
+		assertErrInt(t, ToIntStrict, myBool(true), ErrUnsupported)
+		assertErrInt(t, ToIntStrict, myString("5"), ErrUnsupported)
 	})
 
 	t.Run("unsupported", func(t *testing.T) {

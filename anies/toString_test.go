@@ -8,6 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type (
+	myString  string
+	myFloat32 float32
+)
+
 type stringer struct{}
 
 func (stringer) String() string { return "STRINGER" }
@@ -72,6 +77,16 @@ func TestToString(t *testing.T) {
 		var ps *ptrStringer
 		_, err = ToString(ps)
 		require.ErrorIs(t, err, ErrNilAny)
+	})
+
+	t.Run("named types", func(t *testing.T) {
+		assertStr(t, myString("hi"), "hi")
+		assertStr(t, myInt(-7), "-7")
+		assertStr(t, myUint(8), "8")
+		assertStr(t, myBool(true), "true")
+		assertStr(t, myFloat(-2.25), "-2.25")
+		assertStr(t, myFloat32(1.5), "1.5")
+		assertStr(t, arm.Ref(myString("x")), "x")
 	})
 
 	t.Run("unsupported", func(t *testing.T) {

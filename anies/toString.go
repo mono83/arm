@@ -17,6 +17,7 @@ import (
 //   - Floats use the shortest representation that round-trips.
 //   - Values implementing error or fmt.Stringer use Error()/String().
 //   - Pointers are dereferenced and their target converted recursively.
+//   - Named scalar types (e.g. `type Name string`) are converted by their base.
 //
 // A nil input (including a typed nil) returns ErrNilAny. Any other type
 // returns ErrUnsupported.
@@ -69,8 +70,12 @@ func ToString(a any) (string, error) {
 		if arm.IsNil(a) {
 			return "", ErrNilAny
 		}
-		if rv := reflect.ValueOf(a); rv.Kind() == reflect.Ptr {
+		rv := reflect.ValueOf(a)
+		if rv.Kind() == reflect.Ptr {
 			return ToString(rv.Elem().Interface())
+		}
+		if base, ok := basic(rv); ok {
+			return ToString(base)
 		}
 		return "", fmt.Errorf("%T %w", a, ErrUnsupported)
 	}
